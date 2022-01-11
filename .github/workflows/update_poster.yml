@@ -13,19 +13,16 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.10'
+          python-version: '3.8'
+          cache: pip
 
       - name: Install dependencies
         run: |
-          pip install -U pip
+          pip install -U setuptools pip wheel
           pip install -U github_poster
-
-      - name: Run a one-line script
-        run: echo Hello, world!
 
       - name: Generate poster
         run: |
-          # generate to where?
           github_poster github --github_user_name "${{ github.actor }}" --with-skyline
           github_poster leetcode --leetcode_cookie ${{ secrets.LEETCODE_COOKIE }} --year 2021-2022 --cn
 
@@ -35,4 +32,4 @@ jobs:
           add: '.'
           default_author: github_actions
           message: 'Update poster daily'
-        
+  
