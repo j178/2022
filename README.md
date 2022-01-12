@@ -2,7 +2,7 @@
 
 ## [GitHub contribution calendar](https://github.com/j178)
 <!--START_SECTION:github_calendar-->
-![github_calendar](https://s2.loli.net/2022/01/13/kspiHzc1l8t9CjU.png)
+![github_calendar](https://s2.loli.net/2022/01/13/xpZ8KkJuvSc4hf7.png)
 <!--END_SECTION:github_calendar-->
 
 ## [Leetcode summary](https://leetcode-cn.com/u/j178)
