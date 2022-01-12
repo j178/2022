@@ -2,12 +2,12 @@
 
 ## [GitHub contribution calendar](https://github.com/j178)
 <!--START_SECTION:github_calendar-->
-![github_calendar](https://s2.loli.net/2022/01/13/iPcOQ1VnxbSLmEr.png)
+![github_calendar](https://s2.loli.net/2022/01/13/kspiHzc1l8t9CjU.png)
 <!--END_SECTION:github_calendar-->
 
 ## [Leetcode summary](https://leetcode-cn.com/u/j178)
 <!--START_SECTION:leetcode_summary-->
-![leetcode_summary](https://s2.loli.net/2022/01/12/DfgMUNPrx2HBOIm.png)
+![leetcode_summary](https://s2.loli.net/2022/01/13/E9x1Q8AFGraDmCI.png)
 <!--END_SECTION:leetcode_summary-->
 
 ## TODO
