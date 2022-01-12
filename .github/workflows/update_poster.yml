@@ -30,7 +30,7 @@ jobs:
           key: ${{ runner.os }}-font-cache
 
       - name: Download fonts
-        if: steps.font-cache.output.cache-hit != 'true'
+        if: steps.font-cache.outputs.cache-hit != 'true'
         run: for i in simhei.ttf simkai.ttf simsun.ttc simsunb.ttf simfang.ttf; do wget -P fonts/ https://xugr.keybase.pub/static/fonts/$i; done
 
       - name: Install fonts
