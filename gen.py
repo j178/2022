@@ -156,14 +156,18 @@ async def run() -> bool:
     ):
       leetcode_url = await upload_image(leetcode_image, sm_token)
       links["leetcode_summary"] = leetcode_url
+    else:
+      print("::error::Clip leetcode summary failed")
     if await clip_github_calendar(
         page, gh_username, github_image
     ):
       github_url = await upload_image(github_image, sm_token)
       links["github_calendar"] = github_url
+    else:
+      print("::error::Clip github calendar failed")
 
   if not links:
-    print("No links to update")
+    print("::error::No links to update")
     return False
 
   update_readme_links(links)
