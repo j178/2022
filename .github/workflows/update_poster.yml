@@ -22,6 +22,22 @@ jobs:
           pip install -r requirements.txt
           playwright install firefox
 
+      - name: Font cache
+        uses: actions/cache@v2
+        id: font-cache
+        with:
+          path: ./fonts
+          key: ${{ runner.os }}-font-cache
+
+      - name: Download fonts
+        if: steps.font-cache.output.cache-hit != 'true'
+        run: for i in simhei.ttf simkai.ttf simsun.ttc simsunb.ttf simfang.ttf; do wget -P fonts/ https://xugr.keybase.pub/static/fonts/$i; done
+
+      - name: Install fonts
+        run: |
+          mkdir -p ~/.local/share/fonts && cp -r fonts/* ~/.local/share/fonts/
+          fc-cache -rv
+
       - name: Generate poster
         env:
           LC_USERNAME: ${{ secrets.LC_USERNAME }}
