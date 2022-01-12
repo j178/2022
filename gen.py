@@ -11,7 +11,7 @@ if os.environ.get("IN_GH_ACTION"):
   DEBUG = False
 
 
-async def login(page: Page, username: str, password: str):
+async def login(page: Page, username: str, password: str) -> bool:
   await page.goto(LEETCODE_BASE)
 
   # wait for the popup
@@ -37,7 +37,7 @@ async def clip_leetcode_summary_page(
     username: str,
     password: str,
     save_to: str,
-):
+) -> bool:
   print("Launching firefox browser")
   if DEBUG:
     browser = await playwright.firefox.launch(headless=False, slow_mo=500)
@@ -52,7 +52,7 @@ async def clip_leetcode_summary_page(
 
   print(f"Logging in as {username}")
   if not await login(page, username, password):
-    return
+    return False
 
   await page.goto(f"{LEETCODE_BASE}/u/{username}/")
   await page.wait_for_timeout(500)
@@ -62,6 +62,7 @@ async def clip_leetcode_summary_page(
     clip=dict(x=700, y=160, width=772, height=365)
   )
   await browser.close()
+  return True
 
 
 async def upload_image(path: str):
@@ -95,16 +96,16 @@ async def run():
 
   leetcode_image = os.path.join(output_path, "leetcode_summary.png")
   async with async_playwright() as playwright:
-    await clip_leetcode_summary_page(
+    if await clip_leetcode_summary_page(
       playwright, username, password, leetcode_image
-    )
-  leetcode_url = await upload_image(leetcode_image)
-  update_readme_links(
-    {
-      "leetcode_summary_image_url": leetcode_url,
-      "github_calendar_url": "",
-    }
-  )
+    ):
+      leetcode_url = await upload_image(leetcode_image)
+      update_readme_links(
+        {
+          "leetcode_summary_image_url": leetcode_url,
+          "github_calendar_url": "",
+        }
+      )
 
 
 def main():
