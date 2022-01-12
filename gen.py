@@ -109,6 +109,7 @@ async def run() -> bool:
       "github_calendar_url": "",
     }
   )
+  return True
 
 
 def main():
