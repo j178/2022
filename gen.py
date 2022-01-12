@@ -83,7 +83,7 @@ async def clip_leetcode_summary_page(
     return False
 
   await page.goto(f"{LEETCODE_BASE}/u/{username}/")
-  await page.wait_for_timeout(500)
+  await page.wait_for_timeout(2000)
 
   await page.screenshot(
     path=save_to,
