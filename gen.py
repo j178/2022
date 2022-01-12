@@ -5,7 +5,9 @@ import httpx
 from playwright.async_api import async_playwright, Playwright, BrowserContext
 
 LEETCODE_BASE = "https://leetcode-cn.com"
-
+DEBUG = True
+if os.environ.get("IN_GH_ACTION"):
+  DEBUG = False
 
 async def login(browser: BrowserContext, username: str, password: str):
   page = await browser.new_page()
@@ -25,7 +27,10 @@ async def clip_leetcode_summary_page(
     password: str,
     save_to: str,
 ):
-  browser = await playwright.firefox.launch(headless=False, slow_mo=500)
+  if DEBUG:
+    browser = await playwright.firefox.launch(headless=False, slow_mo=500)
+  else:
+    browser = await playwright.firefox.launch()
   context = await browser.new_context(
     viewport={"width": 1920, "height": 1080},
     screen={"width": 1920, "height": 1080},

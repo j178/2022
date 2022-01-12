@@ -26,6 +26,7 @@ jobs:
         env:
           LC_USERNAME: ${{ secrets.LC_USERNAME }}
           LC_PASSWORD: ${{ secrets.LC_PASSWORD }}
+          IN_GH_ACTION: true
         run: python gen.py
 
       - name: Add & Commit
