@@ -10,7 +10,7 @@ LEETCODE_BASE = "https://leetcode-cn.com"
 TZ = ZoneInfo("Asia/Shanghai")
 DEBUG = False
 
-if os.environ.get("IN_GH_ACTION"):
+if os.environ.get("CI"):
   DEBUG = False
 
 

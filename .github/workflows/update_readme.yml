@@ -1,4 +1,4 @@
-name: Update poster
+name: Update readme
 
 on:
   schedule:
@@ -45,7 +45,6 @@ jobs:
           LC_PASSWORD: ${{ secrets.LC_PASSWORD }}
           SM_TOKEN: ${{ secrets.SM_TOKEN }}
           GH_USERNAME: j178
-          IN_GH_ACTION: true
         run: python gen.py
 
       - name: Add & Commit
