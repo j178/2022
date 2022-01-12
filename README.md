@@ -14,3 +14,5 @@
 - [x] 生成 github 提交记录图
 - [x] add cache for pip and playwright
 - [ ] 增加极客时间学习记录
+- [ ] 增加读书记录
+- [ ] 增加 keep 跑步记录
