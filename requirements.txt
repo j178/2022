@@ -1,2 +1,2 @@
-github_poster
-twint_fork==2.1.22
+playwright
+httpx

@@ -20,11 +20,13 @@ jobs:
         run: |
           pip install -U setuptools pip wheel
           pip install -r requirements.txt
+          playwright install firefox
 
       - name: Generate poster
-        run: |
-          github_poster github --github_user_name "${{ github.actor }}" --with-skyline
-          github_poster leetcode --leetcode_cookie ${{ secrets.LEETCODE_COOKIE }} --year 2021-2022 --cn
+        env:
+          LC_USERNAME: ${{ secrets.LC_USERNAME }}
+          LC_PASSWORD: ${{ secrets.LC_PASSWORD }}
+        run: python gen.py
 
       - name: Add & Commit
         uses: EndBug/add-and-commit@v7.5.0
@@ -32,4 +34,3 @@ jobs:
           add: '.'
           default_author: github_actions
           message: 'Update poster daily'
-  
