@@ -1,11 +1,13 @@
 import asyncio
 import os
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import httpx
 from playwright.async_api import async_playwright, Playwright, Page
 
 LEETCODE_BASE = "https://leetcode-cn.com"
+TZ = ZoneInfo("Asia/Shanghai")
 DEBUG = False
 
 if os.environ.get("IN_GH_ACTION"):
@@ -116,7 +118,7 @@ def update_readme_links(links: dict):
     i = line.find("<!--START_INLINE:today-->")
     if i != -1:
       j = line.find("<!--END_INLINE:today-->")
-      content[line_no] = line[:i + 25] + datetime.now().strftime("%Y-%m-%d") + line[j:]
+      content[line_no] = line[:i + 25] + datetime.now(tzinfo=TZ).strftime("%Y-%m-%d") + line[j:]
 
   with open("./README.md", "wt") as f:
     f.write("".join(content))
