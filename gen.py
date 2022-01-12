@@ -6,7 +6,7 @@ import httpx
 from playwright.async_api import async_playwright, Playwright, Page
 
 LEETCODE_BASE = "https://leetcode-cn.com"
-DEBUG = True
+DEBUG = False
 
 if os.environ.get("IN_GH_ACTION"):
   DEBUG = False
@@ -110,7 +110,13 @@ def update_readme_links(links: dict):
   for name, link in links.items():
     i = content.index(f"<!--START_SECTION:{name}-->\n")
     j = content.index(f"<!--END_SECTION:{name}-->\n")
-    content[i+1:j] = [f"![{name}]({link})\n"]
+    content[i + 1:j] = [f"![{name}]({link})\n"]
+
+  for line_no, line in enumerate(content):
+    i = line.find("<!--START_INLINE:today-->")
+    if i != -1:
+      j = line.find("<!--END_INLINE:today-->")
+      content[line_no] = line[:i + 25] + datetime.now().strftime("%Y-%m-%d") + line[j:]
 
   with open("./README.md", "wt") as f:
     f.write("".join(content))
