@@ -39,7 +39,7 @@ jobs:
           mkdir -p ~/.local/share/fonts && cp -r fonts/* ~/.local/share/fonts/
           fc-cache -rv
 
-      - name: Generate poster
+      - name: Generate readme
         env:
           LC_USERNAME: j178
           LC_PASSWORD: ${{ secrets.LC_PASSWORD }}
@@ -52,4 +52,4 @@ jobs:
         with:
           add: 'README.md'
           default_author: github_actions
-          message: 'Update poster daily'
+          message: 'Update readme daily'
