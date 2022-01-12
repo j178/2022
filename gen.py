@@ -1,6 +1,6 @@
 import asyncio
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
 import httpx
@@ -118,7 +118,7 @@ def update_readme_links(links: dict):
     i = line.find("<!--START_INLINE:today-->")
     if i != -1:
       j = line.find("<!--END_INLINE:today-->")
-      content[line_no] = line[:i + 25] + datetime.now(tz=datetime.utc).astimezone(TZ).strftime("%Y-%m-%d") + line[j:]
+      content[line_no] = line[:i + 25] + datetime.now(timezone.utc).astimezone(TZ).strftime("%Y-%m-%d") + line[j:]
 
   with open("./README.md", "wt") as f:
     f.write("".join(content))
