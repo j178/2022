@@ -88,7 +88,7 @@ def update_readme_links(links: dict):
   print("Updated README.md")
 
 
-async def run():
+async def run() -> bool:
   username = os.environ["LC_USERNAME"]
   password = os.environ["LC_PASSWORD"]
   output_path = "./output"
@@ -96,20 +96,24 @@ async def run():
 
   leetcode_image = os.path.join(output_path, "leetcode_summary.png")
   async with async_playwright() as playwright:
-    if await clip_leetcode_summary_page(
+    clipped = clip_leetcode_summary_page(
       playwright, username, password, leetcode_image
-    ):
-      leetcode_url = await upload_image(leetcode_image)
-      update_readme_links(
-        {
-          "leetcode_summary_image_url": leetcode_url,
-          "github_calendar_url": "",
-        }
-      )
+    )
+    if not clipped:
+      return False
+
+  leetcode_url = await upload_image(leetcode_image)
+  update_readme_links(
+    {
+      "leetcode_summary_image_url": leetcode_url,
+      "github_calendar_url": "",
+    }
+  )
 
 
 def main():
-  asyncio.run(run())
+  if not asyncio.run(run()):
+    exit(1)
 
 
 if __name__ == '__main__':

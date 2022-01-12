@@ -6,3 +6,4 @@
 
 ## TODO
 - [ ] 生成 github 提交记录图
+- [ ] add cache for pip and playwright
