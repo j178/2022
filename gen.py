@@ -96,7 +96,7 @@ async def run() -> bool:
 
   leetcode_image = os.path.join(output_path, "leetcode_summary.png")
   async with async_playwright() as playwright:
-    clipped = clip_leetcode_summary_page(
+    clipped = await clip_leetcode_summary_page(
       playwright, username, password, leetcode_image
     )
     if not clipped:
