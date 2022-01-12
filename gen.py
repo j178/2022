@@ -2,15 +2,16 @@ import asyncio
 import os
 
 import httpx
-from playwright.async_api import async_playwright, Playwright, BrowserContext
+from playwright.async_api import async_playwright, Playwright, Page
 
 LEETCODE_BASE = "https://leetcode-cn.com"
 DEBUG = True
+
 if os.environ.get("IN_GH_ACTION"):
   DEBUG = False
 
-async def login(browser: BrowserContext, username: str, password: str):
-  page = await browser.new_page()
+
+async def login(page: Page, username: str, password: str):
   await page.goto(LEETCODE_BASE)
 
   # wait for the popup
@@ -19,6 +20,16 @@ async def login(browser: BrowserContext, username: str, password: str):
   await page.fill('[placeholder="手机/邮箱"]', username)
   await page.fill('[placeholder="输入密码"]', password)
   await page.click('button:has-text("登录")')
+  await page.wait_for_timeout(500)
+
+  # test if login succeed
+  cookies = await page.context.cookies(LEETCODE_BASE)
+  for cookie in cookies:
+    if cookie["name"] == "LEETCODE_SESSION":
+      print(f"Logged in as {username}")
+      return True
+  print(f"Login as {username} failed")
+  return False
 
 
 async def clip_leetcode_summary_page(
@@ -27,6 +38,7 @@ async def clip_leetcode_summary_page(
     password: str,
     save_to: str,
 ):
+  print("Launching firefox browser")
   if DEBUG:
     browser = await playwright.firefox.launch(headless=False, slow_mo=500)
   else:
@@ -36,10 +48,12 @@ async def clip_leetcode_summary_page(
     screen={"width": 1920, "height": 1080},
     device_scale_factor=2,
   )
-
-  await login(context, username, password)
-
   page = await context.new_page()
+
+  print(f"Logging in as {username}")
+  if not await login(page, username, password):
+    return
+
   await page.goto(f"{LEETCODE_BASE}/u/{username}/")
   await page.wait_for_timeout(500)
 
@@ -51,14 +65,17 @@ async def clip_leetcode_summary_page(
 
 
 async def upload_image(path: str):
-  client = httpx.AsyncClient()
-  resp = await client.post(
-    "https://sm.ms/api/v2/upload",
-    files={"smfile": open(path, "rb")},
-    timeout=10,
-  )
-  resp.raise_for_status()
-  return resp.json()["data"]["url"]
+  print(f"Uploading {path} to sm.ms")
+  async with httpx.AsyncClient(trust_env=False) as client:
+    resp = await client.post(
+      "https://sm.ms/api/v2/upload",
+      files={"smfile": open(path, "rb")},
+      timeout=10,
+    )
+    resp.raise_for_status()
+    url = resp.json()["data"]["url"]
+    print(f"Uploaded: {url}")
+    return url
 
 
 def update_readme_links(links: dict):
@@ -67,6 +84,7 @@ def update_readme_links(links: dict):
   content = content.format_map(links)
   with open("./README.md", "wt") as f:
     f.write(content)
+  print("Updated README.md")
 
 
 async def run():
