@@ -2,7 +2,8 @@ name: Update poster
 
 on:
   schedule:
-    - cron: '0 9 * * *'
+    # Run at 1 am every day
+    - cron: '0 17 * * *'
   workflow_dispatch:
 
 jobs:
