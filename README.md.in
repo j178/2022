@@ -1,9 +1,0 @@
-## GitHub contribution calendar
-![github calendar]({github_calendar_url})
-
-## Leetcode summary
-![Leetcode summary]({leetcode_summary_image_url})
-
-## TODO
-- [ ] 生成 github 提交记录图
-- [ ] add cache for pip and playwright

@@ -2,7 +2,7 @@ name: Update poster
 
 on:
   schedule:
-    - cron: '0 8 * * *'
+    - cron: '0 9 * * *'
   workflow_dispatch:
 
 jobs:
@@ -40,8 +40,10 @@ jobs:
 
       - name: Generate poster
         env:
-          LC_USERNAME: ${{ secrets.LC_USERNAME }}
+          LC_USERNAME: j178
           LC_PASSWORD: ${{ secrets.LC_PASSWORD }}
+          SM_TOKEN: ${{ secrets.SM_TOKEN }}
+          GH_USERNAME: j178
           IN_GH_ACTION: true
         run: python gen.py
 
