@@ -182,32 +182,41 @@ async def run() -> bool:
     data = {}
     today = datetime.now(timezone.utc).astimezone(TZ).strftime("%Y-%m-%d")
 
-    if await clip_leetcode_summary_page(
-        page, lc_username, lc_password, leetcode_image
-    ):
-      leetcode_url = await upload_image(leetcode_image, sm_token)
-      data["leetcode_summary"] = leetcode_url
-      data["leetcode_update_date"] = today
-    else:
-      print("::error::Clip leetcode summary failed")
+    try:
+      if await clip_leetcode_summary_page(
+          page, lc_username, lc_password, leetcode_image
+      ):
+        leetcode_url = await upload_image(leetcode_image, sm_token)
+        data["leetcode_summary"] = leetcode_url
+        data["leetcode_update_date"] = today
+      else:
+        print("::error::Clip leetcode summary failed")
+    except Exception as e:
+      print(f"::error::Clip leetcode summary error: {e!r}")
 
-    if await clip_github_calendar(
-        page, gh_username, github_image
-    ):
-      github_url = await upload_image(github_image, sm_token)
-      data["github_calendar"] = github_url
-      data["github_update_date"] = today
-    else:
-      print("::error::Clip github calendar failed")
+    try:
+      if await clip_github_calendar(
+          page, gh_username, github_image
+      ):
+        github_url = await upload_image(github_image, sm_token)
+        data["github_calendar"] = github_url
+        data["github_update_date"] = today
+      else:
+        print("::error::Clip github calendar failed")
+    except Exception as e:
+      print(f"::error::Clip github calendar error: {e!r}")
 
-    if await clip_geek_time_calendar(
-      page, gt_username, gt_password, geek_time_image,
-    ):
-      geek_time_url = await upload_image(geek_time_image, sm_token)
-      data["geek_time_calendar"] = geek_time_url
-      data["geek_time_update_date"] = today
-    else:
-      print("::error::Clip geek time calendar failed")
+    try:
+      if await clip_geek_time_calendar(
+        page, gt_username, gt_password, geek_time_image,
+      ):
+        geek_time_url = await upload_image(geek_time_image, sm_token)
+        data["geek_time_calendar"] = geek_time_url
+        data["geek_time_update_date"] = today
+      else:
+        print("::error::Clip geek time calendar failed")
+    except Exception as e:
+      print(f"::error::Clip geek time calendar error: {e!r}")
 
   if not data:
     print("::error::No links to update")
