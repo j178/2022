@@ -14,5 +14,7 @@
 - [x] 生成 github 提交记录图
 - [x] add cache for pip and playwright
 - [x] 增加极客时间学习记录
+- [ ] 复用 cookies，不用每次都重新登录
+- [ ] 增加 Bilibili 每日看视频数量，生成 SVG
 - [ ] 增加读书记录
 - [ ] 增加 keep 跑步记录
