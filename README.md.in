@@ -6,10 +6,13 @@
 ## [Leetcode summary](https://leetcode-cn.com/u/j178) (Updated at {leetcode_update_date})
 ![leetcode_summary]({leetcode_summary})
 
+## Geek time calendary (Updated at {geek_time_update_date})
+![geek_time_calendar]({geek_time_calendar})
+
 
 ## TODO
 - [x] 生成 github 提交记录图
 - [x] add cache for pip and playwright
-- [ ] 增加极客时间学习记录
+- [x] 增加极客时间学习记录
 - [ ] 增加读书记录
 - [ ] 增加 keep 跑步记录

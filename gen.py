@@ -106,6 +106,33 @@ async def clip_github_calendar(
   return True
 
 
+async def login_geek_time(page: Page, phone: str, password: str):
+  await page.goto("https://account.geekbang.org/login?country=86")
+  await page.wait_for_timeout(500)
+
+  await page.wait_for_selector('[placeholder="密码"]')
+  await page.fill('[placeholder="手机号"]', phone)
+  await page.fill('[placeholder="密码"]', password)
+  await page.check('input[type="checkbox"]')
+  await page.click(':nth-match(:text("登录"), 3)')
+  return True
+
+
+async def clip_geek_time_calendar(
+    page: Page, username: str, password: str, save_to: str,
+) -> bool:
+  print("Clipping geek time calendar")
+  if not await login_geek_time(page, username, password):
+    return False
+
+  await page.goto("https://time.geekbang.org/dashboard/usercenter")
+  await page.wait_for_timeout(500)
+  calendar = page.locator("div[class^=LearningRecord_learningWrapper]")
+  await calendar.screenshot(path=save_to)
+  return True
+
+
+
 def update_readme(params: dict):
   with open("./README.md.in", "rt") as f:
     content = f.read()
@@ -128,6 +155,8 @@ async def run() -> bool:
   lc_username = os.environ["LC_USERNAME"]
   lc_password = os.environ["LC_PASSWORD"]
   gh_username = os.environ["GH_USERNAME"]
+  gt_username = os.environ["GT_USERNAME"]
+  gt_password = os.environ["GT_PASSWORD"]
   sm_token = os.environ["SM_TOKEN"]
 
   output_path = "./output"
@@ -135,6 +164,7 @@ async def run() -> bool:
 
   leetcode_image = os.path.join(output_path, "leetcode_summary.png")
   github_image = os.path.join(output_path, "github_calendar.png")
+  geek_time_image = os.path.join(output_path, "geek_time_calendar.png")
 
   async with async_playwright() as playwright:
     print("Launching firefox browser")
@@ -151,6 +181,7 @@ async def run() -> bool:
     page = await context.new_page()
     data = {}
     today = datetime.now(timezone.utc).astimezone(TZ).strftime("%Y-%m-%d")
+
     if await clip_leetcode_summary_page(
         page, lc_username, lc_password, leetcode_image
     ):
@@ -159,6 +190,7 @@ async def run() -> bool:
       data["leetcode_update_date"] = today
     else:
       print("::error::Clip leetcode summary failed")
+
     if await clip_github_calendar(
         page, gh_username, github_image
     ):
@@ -167,6 +199,15 @@ async def run() -> bool:
       data["github_update_date"] = today
     else:
       print("::error::Clip github calendar failed")
+
+    if await clip_geek_time_calendar(
+      page, gt_username, gt_password, geek_time_image,
+    ):
+      geek_time_url = await upload_image(geek_time_image, sm_token)
+      data["geek_time_calendar"] = geek_time_url
+      data["geek_time_update_date"] = today
+    else:
+      print("::error::Clip geek time calendar failed")
 
   if not data:
     print("::error::No links to update")

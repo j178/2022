@@ -45,6 +45,8 @@ jobs:
           LC_PASSWORD: ${{ secrets.LC_PASSWORD }}
           SM_TOKEN: ${{ secrets.SM_TOKEN }}
           GH_USERNAME: j178
+          GT_USERNAME: ${{ secrets.GT_USERNAME }}
+          GT_PASSWORD: ${{ secrets.GT_PASSWORD }}
         run: python gen.py
 
       - name: Add & Commit

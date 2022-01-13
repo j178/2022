@@ -6,6 +6,9 @@
 ## [Leetcode summary](https://leetcode-cn.com/u/j178) (Updated at 2022-01-13)
 ![leetcode_summary](https://s2.loli.net/2022/01/13/IegQE82OHaRUowS.png)
 
+## Geek time calendary (Updated at 2022-01-13)
+![geek_time_calendar](https://s2.loli.net/2022/01/13/PQxGdhNa2EOK5A1.png)
+
 
 ## TODO
 - [x] 生成 github 提交记录图
