@@ -113,7 +113,16 @@ async def login_geek_time(page: Page, phone: str, password: str) -> bool:
   await page.fill('[placeholder="密码"]', password)
   await page.check('input[type="checkbox"]')
   await page.click(':nth-match(:text("登录"), 3)')
-  return True
+  await page.wait_for_url("https://time.geekbang.org/")
+
+  # test if login_leetcode succeed
+  cookies = await page.context.cookies("https://time.geekbang.org")
+  for cookie in cookies:
+    if cookie["name"] == "GCESS":
+      print(f"Logged in geek time")
+      return True
+  print(f"Login geek time failed")
+  return False
 
 
 async def clip_geek_time_calendar(
