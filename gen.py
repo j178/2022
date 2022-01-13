@@ -181,10 +181,11 @@ async def run() -> bool:
     today = datetime.now(timezone.utc).astimezone(TZ).strftime("%Y-%m-%d")
 
     try:
+      save_path = os.path.join(output_path, leetcode_image)
       await clip_leetcode_summary_page(
-          page, lc_username, lc_password, os.path.join(output_path, leetcode_image)
+          page, lc_username, lc_password, save_path
       )
-      leetcode_url = await upload_image(leetcode_image, sm_token)
+      leetcode_url = await upload_image(save_path, sm_token)
       data["leetcode_summary"] = leetcode_url
       data["leetcode_update_date"] = today
     except Exception as e:
@@ -192,10 +193,11 @@ async def run() -> bool:
       await page.screenshot(path=os.path.join(debug_path, leetcode_image))
 
     try:
+      save_path = os.path.join(output_path, github_image)
       await clip_github_calendar(
-          page, gh_username, os.path.join(output_path, github_image)
+          page, gh_username, save_path
       )
-      github_url = await upload_image(github_image, sm_token)
+      github_url = await upload_image(save_path, sm_token)
       data["github_calendar"] = github_url
       data["github_update_date"] = today
     except Exception as e:
@@ -203,10 +205,11 @@ async def run() -> bool:
       await page.screenshot(path=os.path.join(debug_path, github_image))
 
     try:
+      save_path = os.path.join(output_path, geek_time_image)
       await clip_geek_time_calendar(
-        page, gt_username, gt_password, os.path.join(output_path, geek_time_image)
+        page, gt_username, gt_password, save_path
       )
-      geek_time_url = await upload_image(geek_time_image, sm_token)
+      geek_time_url = await upload_image(save_path, sm_token)
       data["geek_time_calendar"] = geek_time_url
       data["geek_time_update_date"] = today
     except Exception as e:
