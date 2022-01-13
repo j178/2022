@@ -49,6 +49,12 @@ jobs:
           GT_PASSWORD: ${{ secrets.GT_PASSWORD }}
         run: python gen.py
 
+      - name: Save debug files
+        uses: actions/upload-artifact@v2
+        with:
+          name: debug-files
+          path: ./debug
+
       - name: Add & Commit
         uses: EndBug/add-and-commit@v7.5.0
         with:

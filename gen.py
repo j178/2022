@@ -80,10 +80,10 @@ async def clip_leetcode_summary_page(
     username: str,
     password: str,
     save_to: str,
-) -> bool:
+):
   print(f"Logging in leetcode as {username}")
   if not await login_leetcode(page, username, password):
-    return False
+    raise Exception("Login failed")
 
   await page.goto(f"{LEETCODE_BASE}/u/{username}/")
   await page.wait_for_timeout(2000)
@@ -92,21 +92,19 @@ async def clip_leetcode_summary_page(
     path=save_to,
     clip=dict(x=700, y=160, width=772, height=365)
   )
-  return True
 
 
 async def clip_github_calendar(
     page: Page, username: str, save_to: str,
-) -> bool:
+):
   print("Clipping github calendar")
   await page.goto(f"https://github.com/{username}")
   await page.wait_for_timeout(500)
   calendar = page.locator("div.js-yearly-contributions")
   await calendar.screenshot(path=save_to)
-  return True
 
 
-async def login_geek_time(page: Page, phone: str, password: str):
+async def login_geek_time(page: Page, phone: str, password: str) -> bool:
   await page.goto("https://account.geekbang.org/login?country=86")
   await page.wait_for_timeout(500)
 
@@ -120,17 +118,15 @@ async def login_geek_time(page: Page, phone: str, password: str):
 
 async def clip_geek_time_calendar(
     page: Page, username: str, password: str, save_to: str,
-) -> bool:
+):
   print("Clipping geek time calendar")
   if not await login_geek_time(page, username, password):
-    return False
+    raise Exception("Login failed")
 
   await page.goto("https://time.geekbang.org/dashboard/usercenter")
   await page.wait_for_timeout(500)
   calendar = page.locator("div[class^=LearningRecord_learningWrapper]")
   await calendar.screenshot(path=save_to)
-  return True
-
 
 
 def update_readme(params: dict):
@@ -160,11 +156,13 @@ async def run() -> bool:
   sm_token = os.environ["SM_TOKEN"]
 
   output_path = "./output"
+  debug_path = "./debug"
   os.makedirs(output_path, exist_ok=True)
+  os.makedirs(debug_path, exist_ok=True)
 
-  leetcode_image = os.path.join(output_path, "leetcode_summary.png")
-  github_image = os.path.join(output_path, "github_calendar.png")
-  geek_time_image = os.path.join(output_path, "geek_time_calendar.png")
+  leetcode_image = "leetcode_summary.png"
+  github_image = "github_calendar.png"
+  geek_time_image = "geek_time_calendar.png"
 
   async with async_playwright() as playwright:
     print("Launching firefox browser")
@@ -183,40 +181,37 @@ async def run() -> bool:
     today = datetime.now(timezone.utc).astimezone(TZ).strftime("%Y-%m-%d")
 
     try:
-      if await clip_leetcode_summary_page(
-          page, lc_username, lc_password, leetcode_image
-      ):
-        leetcode_url = await upload_image(leetcode_image, sm_token)
-        data["leetcode_summary"] = leetcode_url
-        data["leetcode_update_date"] = today
-      else:
-        print("::error::Clip leetcode summary failed")
+      await clip_leetcode_summary_page(
+          page, lc_username, lc_password, os.path.join(output_path, leetcode_image)
+      )
+      leetcode_url = await upload_image(leetcode_image, sm_token)
+      data["leetcode_summary"] = leetcode_url
+      data["leetcode_update_date"] = today
     except Exception as e:
       print(f"::error::Clip leetcode summary error: {e!r}")
+      await page.screenshot(path=os.path.join(debug_path, leetcode_image))
 
     try:
-      if await clip_github_calendar(
-          page, gh_username, github_image
-      ):
-        github_url = await upload_image(github_image, sm_token)
-        data["github_calendar"] = github_url
-        data["github_update_date"] = today
-      else:
-        print("::error::Clip github calendar failed")
+      await clip_github_calendar(
+          page, gh_username, os.path.join(output_path, github_image)
+      )
+      github_url = await upload_image(github_image, sm_token)
+      data["github_calendar"] = github_url
+      data["github_update_date"] = today
     except Exception as e:
       print(f"::error::Clip github calendar error: {e!r}")
+      await page.screenshot(path=os.path.join(debug_path, github_image))
 
     try:
-      if await clip_geek_time_calendar(
-        page, gt_username, gt_password, geek_time_image,
-      ):
-        geek_time_url = await upload_image(geek_time_image, sm_token)
-        data["geek_time_calendar"] = geek_time_url
-        data["geek_time_update_date"] = today
-      else:
-        print("::error::Clip geek time calendar failed")
+      await clip_geek_time_calendar(
+        page, gt_username, gt_password, os.path.join(output_path, geek_time_image)
+      )
+      geek_time_url = await upload_image(geek_time_image, sm_token)
+      data["geek_time_calendar"] = geek_time_url
+      data["geek_time_update_date"] = today
     except Exception as e:
       print(f"::error::Clip geek time calendar error: {e!r}")
+      await page.screenshot(path=os.path.join(debug_path, geek_time_image))
 
   if not data:
     print("::error::No links to update")
