@@ -1,14 +1,15 @@
 import asyncio
+import json
 import os
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
 import httpx
-from playwright.async_api import async_playwright, Playwright, Page
+from playwright.async_api import async_playwright, Page
 
 LEETCODE_BASE = "https://leetcode-cn.com"
 TZ = ZoneInfo("Asia/Shanghai")
-DEBUG = False
+DEBUG = True
 
 if os.environ.get("CI"):
   DEBUG = False
@@ -105,23 +106,21 @@ async def clip_github_calendar(
   return True
 
 
-def update_readme_links(links: dict):
-  with open("./README.md", "rt") as f:
-    content = f.readlines()
+def update_readme(params: dict):
+  with open("./README.md.in", "rt") as f:
+    content = f.read()
 
-  for name, link in links.items():
-    i = content.index(f"<!--START_SECTION:{name}-->\n")
-    j = content.index(f"<!--END_SECTION:{name}-->\n")
-    content[i + 1:j] = [f"![{name}]({link})\n"]
+  with open("./data.json", "rt") as f:
+    data = json.load(f)
 
-  for line_no, line in enumerate(content):
-    i = line.find("<!--START_INLINE:today-->")
-    if i != -1:
-      j = line.find("<!--END_INLINE:today-->")
-      content[line_no] = line[:i + 25] + datetime.now(timezone.utc).astimezone(TZ).strftime("%Y-%m-%d") + line[j:]
+  params = {k: v for k, v in params.items() if v is not None}
+  data.update(params)
+  content = content.format_map(data)
 
   with open("./README.md", "wt") as f:
-    f.write("".join(content))
+    f.write(content)
+  with open("./data.json", "wt") as f:
+    json.dump(data, f, indent=2, sort_keys=True)
   print("Updated README.md")
 
 
@@ -150,27 +149,30 @@ async def run() -> bool:
       device_scale_factor=2,
     )
     page = await context.new_page()
-    links = {}
+    data = {}
+    today = datetime.now(timezone.utc).astimezone(TZ).strftime("%Y-%m-%d")
     if await clip_leetcode_summary_page(
         page, lc_username, lc_password, leetcode_image
     ):
       leetcode_url = await upload_image(leetcode_image, sm_token)
-      links["leetcode_summary"] = leetcode_url
+      data["leetcode_summary"] = leetcode_url
+      data["leetcode_update_date"] = today
     else:
       print("::error::Clip leetcode summary failed")
     if await clip_github_calendar(
         page, gh_username, github_image
     ):
       github_url = await upload_image(github_image, sm_token)
-      links["github_calendar"] = github_url
+      data["github_calendar"] = github_url
+      data["github_update_date"] = today
     else:
       print("::error::Clip github calendar failed")
 
-  if not links:
+  if not data:
     print("::error::No links to update")
     return False
 
-  update_readme_links(links)
+  update_readme(data)
   await delete_old_images(sm_token)
   return True
 

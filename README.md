@@ -1,14 +1,11 @@
-# Daily track (Updated at <!--START_INLINE:today-->2022-01-13<!--END_INLINE:today-->)
+# Daily track
 
-## [GitHub contribution calendar](https://github.com/j178)
-<!--START_SECTION:github_calendar-->
-![github_calendar](https://s2.loli.net/2022/01/13/xpZ8KkJuvSc4hf7.png)
-<!--END_SECTION:github_calendar-->
+## [GitHub contribution calendar](https://github.com/j178) (Updated at 2022-01-13)
+![github_calendar](https://s2.loli.net/2022/01/13/awHWq5Iyz4jEmQv.png)
 
-## [Leetcode summary](https://leetcode-cn.com/u/j178)
-<!--START_SECTION:leetcode_summary-->
-![leetcode_summary](https://s2.loli.net/2022/01/13/E9x1Q8AFGraDmCI.png)
-<!--END_SECTION:leetcode_summary-->
+## [Leetcode summary](https://leetcode-cn.com/u/j178) (Updated at 2022-01-13)
+![leetcode_summary](https://s2.loli.net/2022/01/13/OUXgAMYwSx5jnzI.png)
+
 
 ## TODO
 - [x] 生成 github 提交记录图
