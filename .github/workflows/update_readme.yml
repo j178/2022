@@ -4,6 +4,9 @@ on:
   schedule:
     # Run at 1 am every day
     - cron: '0 17 * * *'
+  push:
+    paths:
+      - gen.py
   workflow_dispatch:
 
 jobs:
