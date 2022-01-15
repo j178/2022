@@ -8,10 +8,11 @@ import pendulum
 from playwright.async_api import async_playwright, Page
 
 TZ = pendulum.timezone("Asia/Shanghai")
-pendulum.set_local_timezone(TZ)
 OUTPUT_FOLDER = "./output"
+DEBUG_FOLDER = "./debug"
 DEBUG = True
 
+pendulum.set_local_timezone(TZ)
 if os.environ.get("CI"):
   DEBUG = False
 
@@ -364,10 +365,8 @@ async def run() -> bool:
   bili_cookies = os.environ["BILI_COOKIES"]
   bili_cookies = parse_cookies_string(bili_cookies)
 
-  output_path = "./output"
-  debug_path = "./debug"
-  os.makedirs(output_path, exist_ok=True)
-  os.makedirs(debug_path, exist_ok=True)
+  os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+  os.makedirs(DEBUG_FOLDER, exist_ok=True)
 
   image_service = ImageService(sm_token)
   DataGenerator.image_service = image_service
@@ -401,7 +400,7 @@ async def run() -> bool:
         print(f"Generated {source.name}")
       except Exception as e:
         print(f"::error::Generate {source.name} failed: {e!r}")
-        await page.screenshot(path=os.path.join(debug_path, f"{source.name}.png"))
+        await page.screenshot(path=os.path.join(DEBUG_FOLDER, f"{source.name}.png"))
 
   if not full_data:
     print("::error::No links to update")
