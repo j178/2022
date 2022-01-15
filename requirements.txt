@@ -1,2 +1,4 @@
 playwright
 httpx
+pendulum
+svgwrite

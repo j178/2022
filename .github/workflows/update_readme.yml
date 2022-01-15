@@ -49,10 +49,13 @@ jobs:
         env:
           LC_USERNAME: j178
           LC_PASSWORD: ${{ secrets.LC_PASSWORD }}
+          LC_COOKIES: ${{ secrets.LC_COOKIES }}
           SM_TOKEN: ${{ secrets.SM_TOKEN }}
           GH_USERNAME: j178
           GT_USERNAME: ${{ secrets.GT_USERNAME }}
           GT_PASSWORD: ${{ secrets.GT_PASSWORD }}
+          GT_COOKIES: ${{ secrets.GT_COOKIES }}
+          BILI_COOKIES: ${{ secrets.BILI_COOKIES }}
         run: python gen.py
 
       - name: Save debug files
@@ -64,6 +67,6 @@ jobs:
       - name: Add & Commit
         uses: EndBug/add-and-commit@v7.5.0
         with:
-          add: '["README.md", "data.json"]'
+          add: '["README.md", "data"]'
           default_author: github_actions
           message: 'Update readme daily'
