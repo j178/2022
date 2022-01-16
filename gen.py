@@ -269,6 +269,7 @@ class BilibiliHistory(LoginDataGenerator):
     max = 0
     exhausted = False
     while not exhausted:
+      print("Fetching bilibili history")
       resp = await self.client.get(
         "/x/web-interface/history/cursor",
         params={
@@ -284,6 +285,7 @@ class BilibiliHistory(LoginDataGenerator):
       for view in data["data"]["list"]:
         if view["view_at"] >= yesterday_starts:
           cnt += 1
+          await asyncio.sleep(0.5)
         else:
           exhausted = True
           break
@@ -343,6 +345,7 @@ def parse_cookies_string(cookies_string: str) -> dict[str, str]:
 
 
 async def run() -> bool:
+  print("Running")
   sm_token = os.environ["SM_TOKEN"]
   gh_username = os.environ["GH_USERNAME"]
 
@@ -371,6 +374,7 @@ async def run() -> bool:
   image_service = ImageService(sm_token)
   DataGenerator.image_service = image_service
 
+  print("Before launching")
   async with async_playwright() as playwright:
     print("Launching firefox browser")
     if DEBUG:
