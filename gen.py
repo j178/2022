@@ -417,6 +417,7 @@ async def run() -> bool:
 
 
 def main():
+  return
   if not asyncio.run(run()):
     exit(1)
 
