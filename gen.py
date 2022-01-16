@@ -269,6 +269,8 @@ class BilibiliHistory(LoginDataGenerator):
     max = 0
     exhausted = False
     while not exhausted:
+      if cnt > 60:
+        break
       print("Fetching bilibili history", flush=True)
       resp = await self.client.get(
         "/x/web-interface/history/cursor",
@@ -279,16 +281,18 @@ class BilibiliHistory(LoginDataGenerator):
         }
       )
       data = resp.json()
+      import pprint
+      pprint.pprint(data)
       max = data["data"]["cursor"]["max"]
       view_at = data["data"]["cursor"]["view_at"]
 
       for view in data["data"]["list"]:
         if view["view_at"] >= yesterday_starts:
           cnt += 1
-          await asyncio.sleep(0.5)
         else:
           exhausted = True
           break
+      await asyncio.sleep(0.5)
 
     return cnt
 
@@ -401,7 +405,7 @@ async def run() -> bool:
       try:
         data = await source.generate()
         full_data.update(data)
-        print(f"Generated {source.name}")
+        print(f"Generated {source.name}", flush=True)
       except Exception as e:
         print(f"::error::Generate {source.name} failed: {e!r}")
         await page.screenshot(path=os.path.join(DEBUG_FOLDER, f"{source.name}.png"))
