@@ -269,7 +269,7 @@ class BilibiliHistory(LoginDataGenerator):
     max = 0
     exhausted = False
     while not exhausted:
-      print("Fetching bilibili history")
+      print("Fetching bilibili history", flush=True)
       resp = await self.client.get(
         "/x/web-interface/history/cursor",
         params={
@@ -345,7 +345,7 @@ def parse_cookies_string(cookies_string: str) -> dict[str, str]:
 
 
 async def run() -> bool:
-  print("Running")
+  print("Running", flush=True)
   sm_token = os.environ["SM_TOKEN"]
   gh_username = os.environ["GH_USERNAME"]
 
@@ -374,9 +374,9 @@ async def run() -> bool:
   image_service = ImageService(sm_token)
   DataGenerator.image_service = image_service
 
-  print("Before launching")
+  print("Before launching", flush=True)
   async with async_playwright() as playwright:
-    print("Launching firefox browser")
+    print("Launching firefox browser", flush=True)
     if DEBUG:
       browser = await playwright.firefox.launch(headless=False, slow_mo=500)
     else:
@@ -397,7 +397,7 @@ async def run() -> bool:
     ]
     full_data = {}
     for source in sources:
-      print(f"Generating {source.name}")
+      print(f"Generating {source.name}", flush=True)
       try:
         data = await source.generate()
         full_data.update(data)
@@ -417,7 +417,6 @@ async def run() -> bool:
 
 
 def main():
-  return
   if not asyncio.run(run()):
     exit(1)
 
