@@ -30,7 +30,7 @@ class ImageService:
     )
 
   async def upload(self, path: str) -> str:
-    print(f"Uploading {path} to {self.name}")
+    log(f"Uploading {path} to {self.name}")
     resp = await self.client.post(
       "/upload",
       files={
@@ -41,15 +41,15 @@ class ImageService:
     resp.raise_for_status()
     resp_data = resp.json()
     if resp_data["success"] is False and resp_data["code"] == "image_repeated":
-      print(f"Image {path} already exists")
+      log(f"Image {path} already exists")
       return resp_data["images"]
     else:
       url = resp_data["data"]["url"]
-      print(f"Uploaded: {url}")
+      log(f"Uploaded: {url}")
     return url
 
   async def cleanup(self) -> None:
-    print("Deleting old images")
+    log("Deleting old images")
     resp = await self.client.get("/upload_history")
     resp.raise_for_status()
     history = resp.json()["data"]
@@ -60,13 +60,17 @@ class ImageService:
       if (now - created_at).days >= 7:
         try:
           await self.client.get(item["delete"])
-          print(f"Deleted image {filename}")
+          log(f"Deleted image {filename}")
         except httpx.HTTPError as e:
-          print(f"Delete image {filename} failed: {e!r}")
+          log(f"Delete image {filename} failed: {e!r}")
 
 
 def get_today() -> str:
   return pendulum.now("local").strftime("%Y-%m-%d")
+
+
+def log(msg: str) -> None:
+  print(msg, flush=True)
 
 
 class LoginFailed(Exception):
@@ -115,15 +119,15 @@ class LoginDataGenerator(DataGenerator):
     self.page = page
 
   async def login(self) -> None:
-    print(f"Trying to login {self.name} by cookies")
+    log(f"Trying to login {self.name} by cookies")
     await self.login_by_cookies()
     if await self.check_login():
-      print(f"Login {self.name} by cookies succeeded")
+      log(f"Login {self.name} by cookies succeeded")
       return
-    print(f"Trying to login {self.name} by credential")
+    log(f"Trying to login {self.name} by credential")
     await self.login_by_credential()
     if await self.check_login():
-      print(f"Login {self.name} by credential succeeded")
+      log(f"Login {self.name} by credential succeeded")
       return
     raise LoginFailed(self.name)
 
@@ -269,25 +273,23 @@ class BilibiliHistory(LoginDataGenerator):
     max = 0
     exhausted = False
     while not exhausted:
-      if cnt > 60:
-        break
-      print("Fetching bilibili history", flush=True)
+      log("Fetching bilibili history")
       resp = await self.client.get(
         "/x/web-interface/history/cursor",
         params={
           "max": max,
-          "viewed_at": view_at,
+          "view_at": view_at,
           "business": "archive",
         }
       )
       data = resp.json()
-      import pprint
-      pprint.pprint(data)
       max = data["data"]["cursor"]["max"]
       view_at = data["data"]["cursor"]["view_at"]
 
       for view in data["data"]["list"]:
-        if view["view_at"] >= yesterday_starts:
+        if view["view_at"] >= today_starts:
+          continue
+        if yesterday_starts <= view["view_at"]:
           cnt += 1
         else:
           exhausted = True
@@ -299,7 +301,7 @@ class BilibiliHistory(LoginDataGenerator):
   async def generate_svg(self, data: dict[int, int]) -> str:
     # import svgwrite
     # TODO generate svg
-    print(data)
+    log(data)
     return ""
 
   async def generate(self) -> dict[str: str]:
@@ -335,7 +337,7 @@ def update_readme(params: dict):
     f.write(content)
   with open("./data/readme.json", "wt") as f:
     json.dump(data, f, indent=2, sort_keys=True)
-  print("Updated README.md")
+  log("Updated README.md")
 
 
 def parse_cookies_string(cookies_string: str) -> dict[str, str]:
@@ -349,7 +351,7 @@ def parse_cookies_string(cookies_string: str) -> dict[str, str]:
 
 
 async def run() -> bool:
-  print("Running", flush=True)
+  log("Running")
   sm_token = os.environ["SM_TOKEN"]
   gh_username = os.environ["GH_USERNAME"]
 
@@ -378,9 +380,9 @@ async def run() -> bool:
   image_service = ImageService(sm_token)
   DataGenerator.image_service = image_service
 
-  print("Before launching", flush=True)
+  log("Before launching")
   async with async_playwright() as playwright:
-    print("Launching firefox browser", flush=True)
+    log("Launching firefox browser")
     if DEBUG:
       browser = await playwright.firefox.launch(headless=False, slow_mo=500)
     else:
@@ -401,17 +403,17 @@ async def run() -> bool:
     ]
     full_data = {}
     for source in sources:
-      print(f"Generating {source.name}", flush=True)
+      log(f"Generating {source.name}")
       try:
         data = await source.generate()
         full_data.update(data)
-        print(f"Generated {source.name}", flush=True)
+        log(f"Generated {source.name}")
       except Exception as e:
-        print(f"::error::Generate {source.name} failed: {e!r}")
+        log(f"::error::Generate {source.name} failed: {e!r}")
         await page.screenshot(path=os.path.join(DEBUG_FOLDER, f"{source.name}.png"))
 
   if not full_data:
-    print("::error::No links to update")
+    log("::error::No links to update")
     return False
 
   update_readme(full_data)
