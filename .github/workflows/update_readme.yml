@@ -3,7 +3,7 @@ name: Update readme
 on:
   schedule:
     # Run at 1 am every day
-    - cron: '0 17 * * *'
+    - cron: '10 16 * * *'
   push:
     paths:
       - gen.py
