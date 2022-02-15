@@ -1,13 +1,13 @@
 # Daily track
 
 ## [GitHub contribution calendar](https://github.com/j178) (Updated at 2022-02-15)
-![github_calendar](https://s2.loli.net/2022/02/15/rdTZnuilDPHfjCB.png)
+![github_calendar](https://s2.loli.net/2022/02/15/XvTxuKMrCfbcsVw.png)
 
 ## [Leetcode summary](https://leetcode-cn.com/u/j178) (Updated at 2022-02-15)
-![leetcode_summary](https://s2.loli.net/2022/02/15/zoOyMnDPt2rXcaf.png)
+![leetcode_summary](https://s2.loli.net/2022/02/15/pGCEqF8jeUA2dk9.png)
 
 ## Geek time calendar (Updated at 2022-02-15)
-![geek_time_calendar](https://s2.loli.net/2022/02/15/w4OLRQSEPtZi5JU.png)
+![geek_time_calendar](https://s2.loli.net/2022/02/15/ezjsHVIqKOClxo1.png)
 
 ## BiliBili watch history (Updated at 2022-02-15)
 ![bilibili_history]()
