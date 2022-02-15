@@ -5,6 +5,8 @@ import os
 
 import httpx
 import pendulum
+from github_poster.poster import Poster
+from github_poster.drawer import Drawer
 from playwright.async_api import async_playwright, Page
 
 TZ = pendulum.timezone("Asia/Shanghai")
@@ -252,13 +254,13 @@ class BilibiliHistory(LoginDataGenerator):
     data = resp.json()
     return data["data"]["isLogin"]
 
-  def load_histories(self) -> dict[int, int]:
+  def load_histories(self) -> dict[str, int]:
     # 加载本地缓存的历史记录
     with open("./data/bilibili_histories.json", "rt") as f:
       data = json.load(f)
-    return {int(k): v for k, v in data.items()}
+    return data
 
-  def save_histories(self, data: dict[int, int]) -> None:
+  def save_histories(self, data: dict[str, int]) -> None:
     data = {str(k): v for k, v in data.items()}
     with open("./data/bilibili_histories.json", "wt") as f:
       json.dump(data, f, indent=2, sort_keys=True)
@@ -298,24 +300,40 @@ class BilibiliHistory(LoginDataGenerator):
 
     return cnt
 
-  async def generate_svg(self, data: dict[int, int]) -> str:
-    # import svgwrite
-    # TODO generate svg
-    log(data)
-    return ""
+  async def generate_svg(self, data: dict[str, int]) -> str:
+    p = Poster()
+    p.colors = {
+      "background": "#222222",
+      "track": "#FB7299",
+      "special": "yellow",
+      "special2": "red",
+      "text": "#FFFFFF",
+    }
+    p.special_number = {
+      "special_number1": 30,
+      "special_number2": 15,
+    }
+    p.units = "videos"
+    p.title = "j178 BiliBili"
+    p.height = 35 + 43
+    p.set_tracks(data, [pendulum.today().year], ["bilibili"])
+    d = Drawer(p)
+    save_to = os.path.join(OUTPUT_FOLDER, f"{self.name}.svg")
+    p.draw(d, save_to)
+
+    return save_to
 
   async def generate(self) -> dict[str: str]:
     await self.login()
 
     history = self.load_histories()
-    yesterday = pendulum.yesterday().day_of_year
+    yesterday = pendulum.yesterday().to_date_string()
     yesterday_count = await self.get_yesterday_history()
     history[yesterday] = yesterday_count
     self.save_histories(history)
 
     svg_path = await self.generate_svg(history)
-    # image_url = await self.image_service.upload(svg_path)
-    image_url = svg_path
+    image_url = await self.image_service.upload(svg_path)
     return {
       self.name: image_url,
       f"{self.name}_update_date": get_today(),

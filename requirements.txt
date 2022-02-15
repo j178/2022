@@ -1,4 +1,4 @@
 playwright
 httpx
 pendulum
-svgwrite
+github_poster>=2.2.0
