@@ -2,6 +2,7 @@ import abc
 import asyncio
 import json
 import os
+import shutil
 
 import httpx
 import pendulum
@@ -10,6 +11,7 @@ from github_poster.drawer import Drawer
 from playwright.async_api import async_playwright, Page
 
 TZ = pendulum.timezone("Asia/Shanghai")
+DATA_FOLDER = "./data"
 OUTPUT_FOLDER = "./output"
 DEBUG_FOLDER = "./debug"
 DEBUG = True
@@ -42,12 +44,15 @@ class ImageService:
     )
     resp.raise_for_status()
     resp_data = resp.json()
-    if resp_data["success"] is False and resp_data["code"] == "image_repeated":
-      log(f"Image {path} already exists")
-      return resp_data["images"]
-    else:
-      url = resp_data["data"]["url"]
-      log(f"Uploaded: {url}")
+    if resp_data["success"] is False:
+      if resp_data["code"] == "image_repeated":
+        log(f"Image {path} already exists")
+        return resp_data["images"]
+      else:
+        raise Exception(f"Upload image {path} failed: {resp_data}")
+
+    url = resp_data["data"]["url"]
+    log(f"Uploaded: {url}")
     return url
 
   async def cleanup(self) -> None:
@@ -256,13 +261,13 @@ class BilibiliHistory(LoginDataGenerator):
 
   def load_histories(self) -> dict[str, int]:
     # 加载本地缓存的历史记录
-    with open("./data/bilibili_histories.json", "rt") as f:
+    with open(os.path.join(DATA_FOLDER, "bilibili_histories.json"), "rt") as f:
       data = json.load(f)
     return data
 
   def save_histories(self, data: dict[str, int]) -> None:
     data = {str(k): v for k, v in data.items()}
-    with open("./data/bilibili_histories.json", "wt") as f:
+    with open(os.path.join(DATA_FOLDER, "bilibili_histories.json"), "wt") as f:
       json.dump(data, f, indent=2, sort_keys=True)
 
   async def get_yesterday_history(self) -> int:
@@ -305,8 +310,8 @@ class BilibiliHistory(LoginDataGenerator):
     p.colors = {
       "background": "#222222",
       "track": "#FB7299",
-      "special": "yellow",
-      "special2": "red",
+      "special": "#E25980",
+      "special2": "#7C001A",
       "text": "#FFFFFF",
     }
     p.special_number = {
@@ -333,7 +338,8 @@ class BilibiliHistory(LoginDataGenerator):
     self.save_histories(history)
 
     svg_path = await self.generate_svg(history)
-    image_url = await self.image_service.upload(svg_path)
+    image_url = os.path.join(DATA_FOLDER, f"{self.name}.svg")
+    shutil.copy(svg_path, DATA_FOLDER)
     return {
       self.name: image_url,
       f"{self.name}_update_date": get_today(),
