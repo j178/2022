@@ -309,10 +309,10 @@ class BilibiliHistory(LoginDataGenerator):
     p = Poster()
     p.colors = {
       "background": "#222222",
-      "track": "#FB7299",
-      "special": "#E25980",
-      "special2": "#7C001A",
-      "text": "#FFFFFF",
+      "track": "#fdc7d6",
+      "special": "#fdaac2",
+      "special2": "#c95b7a",
+      "text": "#ffffff",
     }
     p.special_number = {
       "special_number1": 30,
