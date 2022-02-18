@@ -9,6 +9,7 @@ import httpx
 import pendulum
 from github_poster.poster import Poster
 from github_poster.drawer import Drawer
+from httpx import AsyncClient
 from playwright.async_api import async_playwright, Page
 
 TZ = pendulum.timezone("Asia/Shanghai")
@@ -16,6 +17,7 @@ DATA_FOLDER = "./data"
 OUTPUT_FOLDER = "./output"
 DEBUG_FOLDER = "./debug"
 DEBUG = True
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"
 
 pendulum.set_local_timezone(TZ)
 if os.environ.get("CI"):
@@ -87,16 +89,12 @@ class LoginFailed(Exception):
 
 
 T = typing.TypeVar("T", bound="DataGenerator")
+Agent = typing.Union[AsyncClient, Page]
 
 
 class DataGenerator:
     name: str
     image_service: ImageService
-
-    @classmethod
-    @abc.abstractmethod
-    def from_env(cls: typing.Type[T], *args) -> T:
-        raise NotImplementedError
 
     @abc.abstractmethod
     async def generate(self: T) -> dict[str:str]:
@@ -107,7 +105,7 @@ class GithubCalendar(DataGenerator):
     name = "github_calendar"
 
     @classmethod
-    def from_env(cls: typing.Type[T], page: Page) -> T:
+    def from_env(cls, page: Page) -> T:
         return cls(os.environ["GH_USERNAME"], page)
 
     def __init__(self, username: str, page: Page):
@@ -133,10 +131,9 @@ class GithubCalendar(DataGenerator):
 class LoginDataGenerator(DataGenerator):
     cookie_domain: str
 
-    def __init__(self, credentials: tuple, cookies: dict, page: Page):
+    def __init__(self, credentials: tuple, cookies: dict):
         self.credentials = credentials
         self.cookies = cookies
-        self.page = page
 
     async def login(self) -> None:
         log(f"Trying to login {self.name} by cookies")
@@ -155,13 +152,9 @@ class LoginDataGenerator(DataGenerator):
     async def login_by_credential(self) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
     async def login_by_cookies(self) -> None:
-        if self.cookies:
-            cookies = [
-                {"name": k, "value": v, "domain": self.cookie_domain, "path": "/"}
-                for k, v in self.cookies.items()
-            ]
-            await self.page.context.add_cookies(cookies)
+        raise NotImplementedError
 
     @abc.abstractmethod
     async def check_login(self) -> bool:
@@ -173,8 +166,12 @@ class LeetcodeSummary(LoginDataGenerator):
     base_url = "https://leetcode-cn.com"
     cookie_domain = ".leetcode-cn.com"
 
+    def __init__(self, credentials: tuple, cookies: dict, page: Page):
+        super().__init__(credentials, cookies)
+        self.page = page
+
     @classmethod
-    def from_env(cls: typing.Type[T], page: Page) -> T:
+    def from_env(cls, page: Page) -> T:
         cookies = os.environ.get("LC_COOKIES") or {}
         if cookies:
             cookies = parse_cookies_string(cookies)
@@ -184,7 +181,7 @@ class LeetcodeSummary(LoginDataGenerator):
             page,
         )
 
-    async def login_by_credential(self):
+    async def login_by_credential(self) -> None:
         page = self.page
         await page.goto(self.base_url)
 
@@ -196,9 +193,18 @@ class LeetcodeSummary(LoginDataGenerator):
         await page.click('button:has-text("登录")')
         await page.wait_for_timeout(500)
 
+    async def login_by_cookies(self) -> None:
+        if self.cookies:
+            cookies = [
+                {"name": k, "value": v, "domain": self.cookie_domain, "path": "/"}
+                for k, v in self.cookies.items()
+            ]
+            await self.page.context.add_cookies(cookies)
+
     async def check_login(self) -> bool:
-        await self.page.goto(self.base_url)
-        cnt = await self.page.locator("div[data-cypress=AuthLinks]").count()
+        page = self.page
+        await page.goto(self.base_url)
+        cnt = await page.locator("div[data-cypress=AuthLinks]").count()
         return cnt == 0
 
     async def generate(self) -> dict[str:str]:
@@ -227,8 +233,12 @@ class GeekTimeCalendar(LoginDataGenerator):
     base_url = "https://time.geekbang.org"
     cookie_domain = ".geekbang.org"
 
+    def __init__(self, credentials: tuple, cookies: dict, page: Page):
+        super().__init__(credentials, cookies)
+        self.page = page
+
     @classmethod
-    def from_env(cls: typing.Type[T], page: Page) -> T:
+    def from_env(cls, page: Page) -> T:
         cookies = os.environ.get("GT_COOKIES") or {}
         if cookies:
             cookies = parse_cookies_string(cookies)
@@ -249,6 +259,14 @@ class GeekTimeCalendar(LoginDataGenerator):
         await page.check('input[type="checkbox"]')
         await page.click(':nth-match(:text("登录"), 3)')
         await page.wait_for_url("https://time.geekbang.org/")
+
+    async def login_by_cookies(self) -> None:
+        if self.cookies:
+            cookies = [
+                {"name": k, "value": v, "domain": self.cookie_domain, "path": "/"}
+                for k, v in self.cookies.items()
+            ]
+            await self.page.context.add_cookies(cookies)
 
     async def check_login(self) -> bool:
         await self.page.goto(self.base_url)
@@ -273,36 +291,31 @@ class GeekTimeCalendar(LoginDataGenerator):
         }
 
 
-client = httpx.AsyncClient(
-    headers={
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"
-    },
-    trust_env=False,
-)
-
-
 class BilibiliHistory(LoginDataGenerator):
     name = "bilibili_history"
 
+    def __init__(self, credentials: tuple, cookies: dict, client: AsyncClient):
+        super().__init__(credentials, cookies)
+        self.client = client
+
     @classmethod
-    def from_env(cls: typing.Type[T], page: Page) -> T:
+    def from_env(cls, client: AsyncClient) -> T:
         cookies = os.environ["BILI_COOKIES"]
         cookies = parse_cookies_string(cookies)
-        return cls((), cookies, page)
+        return cls((), cookies, client)
 
     async def login_by_cookies(self) -> None:
-        client.cookies.update(self.cookies)
+        self.client.cookies.update(self.cookies)
 
-    async def login_by_credential(self):
+    async def login_by_credential(self) -> None:
         return
 
     async def check_login(self) -> bool:
-        resp = await client.get("https://api.bilibili.com/x/web-interface/nav")
+        resp = await self.client.get("https://api.bilibili.com/x/web-interface/nav")
         data = resp.json()
         return data["data"]["isLogin"]
 
     def load_histories(self) -> dict[str, int]:
-        # 加载本地缓存的历史记录
         with open(os.path.join(DATA_FOLDER, "bilibili_histories.json"), "rt") as f:
             data = json.load(f)
         return data
@@ -314,7 +327,6 @@ class BilibiliHistory(LoginDataGenerator):
 
     async def get_yesterday_history(self) -> int:
         # 获取昨天的观看记录
-        # 循环调用，直到获取完一天的所有记录
         cnt = 0
         yesterday_starts = pendulum.yesterday().int_timestamp
         today_starts = pendulum.today().int_timestamp
@@ -323,7 +335,7 @@ class BilibiliHistory(LoginDataGenerator):
         exhausted = False
         while not exhausted:
             log("Fetching bilibili history")
-            resp = await client.get(
+            resp = await self.client.get(
                 "https://api.bilibili.com/x/web-interface/history/cursor",
                 params={
                     "max": max,
@@ -395,24 +407,33 @@ class WeReadHistory(LoginDataGenerator):
         "https://i.weread.qq.com/readdetail?baseTimestamp=0&count=12&type=0"
     )
 
+    def __init__(
+        self, credentials: tuple, cookies: dict[str, str], client: AsyncClient
+    ) -> None:
+        super().__init__(credentials, cookies)
+        self.client = client
+
     @classmethod
-    def from_env(cls: typing.Type[T], page: Page) -> T:
+    def from_env(cls, client: AsyncClient) -> T:
         cookies = os.environ["WEREAD_COOKIES"]
         cookies = parse_cookies_string(cookies)
-        return cls((), cookies, page)
+        return cls((), cookies, client)
+
+    async def login_by_credential(self) -> None:
+        return
 
     async def login_by_cookies(self) -> None:
-        client.cookies.update(self.cookies)
+        self.client.cookies.update(self.cookies)
 
     async def check_login(self) -> bool:
         return True
 
     async def get_history(self) -> list:
-        r = await client.get(self.read_detail_url)
+        r = await self.client.get(self.read_detail_url)
         if r.is_error:
             if r.json()["errcode"] == -2012:
-                await client.get(self.base_url)
-                r = await client.get(self.read_detail_url)
+                await self.client.get(self.base_url)
+                r = await self.client.get(self.read_detail_url)
             else:
                 raise LoginFailed("get weread history failed")
         return r.json()["monthTimeSummary"]
@@ -497,6 +518,11 @@ async def run() -> bool:
     image_service = ImageService(sm_token)
     DataGenerator.image_service = image_service
 
+    client = httpx.AsyncClient(
+        headers={"User-Agent": USER_AGENT},
+        trust_env=False,
+    )
+
     async with async_playwright() as playwright:
         if DEBUG:
             browser = await playwright.firefox.launch(headless=False, slow_mo=500)
@@ -510,24 +536,25 @@ async def run() -> bool:
         )
         page = await context.new_page()
 
-        sources = [
+        generators = [
             LeetcodeSummary.from_env(page),
             GithubCalendar.from_env(page),
             GeekTimeCalendar.from_env(page),
-            WeReadHistory.from_env(page),
-            BilibiliHistory.from_env(page),
+            WeReadHistory.from_env(client),
+            BilibiliHistory.from_env(client),
         ]
+
         full_data = {}
-        for source in sources:
-            log(f"Generating {source.name}")
+        for generator in generators:
+            log(f"Generating {generator.name}")
             try:
-                data = await source.generate()
+                data = await generator.generate()
                 full_data.update(data)
-                log(f"Generated {source.name}")
+                log(f"Generated {generator.name}")
             except Exception as e:
-                log(f"::error::Generate {source.name} failed: {e!r}")
+                log(f"::error::Generate {generator.name} failed: {e!r}")
                 await page.screenshot(
-                    path=os.path.join(DEBUG_FOLDER, f"{source.name}.png")
+                    path=os.path.join(DEBUG_FOLDER, f"{generator.name}.png")
                 )
 
     if not full_data:
