@@ -1,13 +1,13 @@
 # Daily track
 
 ## [GitHub contribution calendar](https://github.com/j178) (Updated at 2022-02-18)
-![github_calendar](https://s2.loli.net/2022/02/18/Ls9Fxgjh6bwodyi.png)
+![github_calendar](https://s2.loli.net/2022/02/18/lyjiFH6sJunPbEC.png)
 
 ## [Leetcode summary](https://leetcode-cn.com/u/j178) (Updated at 2022-02-18)
-![leetcode_summary](https://s2.loli.net/2022/02/18/q3aNd6h1nZOXtMJ.png)
+![leetcode_summary](https://s2.loli.net/2022/02/18/6HBhs1XtTfZ4D2o.png)
 
 ## [Geek time calendar](https://time.geekbang.org/) (Updated at 2022-02-18)
-![geek_time_calendar](https://s2.loli.net/2022/02/18/uZbAa2GTd4qj1t5.png)
+![geek_time_calendar](https://s2.loli.net/2022/02/18/1qrigQxUVh7NtXZ.png)
 
 ## [WeRead history](https://weread.qq.com) (Updated at 2022-02-18)
 ![weread_history](./data/weread_history.svg)
@@ -17,7 +17,7 @@
 
 
 ## Credits
-Thanks to @yihong0618 for the original inspiration and the wonderful [github-poster](https://github.com/yihong0618/GitHubPoster) project.
+Thanks to [@yihong0618](https://github.com/yihong0618) for the original inspiration and the wonderful [github-poster](https://github.com/yihong0618/GitHubPoster) project.
 
 
 ## TODO
