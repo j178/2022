@@ -206,6 +206,9 @@ class LeetcodeSummary(LoginDataGenerator):
 
         await self.page.goto(f"{self.base_url}/u/{self.credentials[0]}/")
         await self.page.wait_for_timeout(2000)
+        btn = self.page.locator("span:has-text('知道了')")
+        if await btn.count() > 0:
+            await btn.click()
 
         save_to = os.path.join(OUTPUT_FOLDER, f"{self.name}.png")
         await self.page.screenshot(

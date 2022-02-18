@@ -56,6 +56,7 @@ jobs:
           GT_PASSWORD: ${{ secrets.GT_PASSWORD }}
           GT_COOKIES: ${{ secrets.GT_COOKIES }}
           BILI_COOKIES: ${{ secrets.BILI_COOKIES }}
+          WEREAD_COOKIES: ${{ secrets.WEREAD_COOKIES }}
         run: python gen.py
 
       - name: Save debug files
