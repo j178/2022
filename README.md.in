@@ -6,11 +6,18 @@
 ## [Leetcode summary](https://leetcode-cn.com/u/j178) (Updated at {leetcode_summary_update_date})
 ![leetcode_summary]({leetcode_summary})
 
-## Geek time calendar (Updated at {geek_time_calendar_update_date})
+## [Geek time calendar](https://time.geekbang.org/) (Updated at {geek_time_calendar_update_date})
 ![geek_time_calendar]({geek_time_calendar})
 
-## BiliBili watch history (Updated at {bilibili_history_update_date})
+## [WeRead history](https://weread.qq.com) (Updated at {weread_history_update_date})
+![weread_history]({weread_history})
+
+## [BiliBili watch history](https://bilibili.com) (Updated at {bilibili_history_update_date})
 ![bilibili_history]({bilibili_history})
+
+
+## Credits
+Thanks to @yihong0618 for the original inspiration and the wonderful [github-poster](https://github.com/yihong0618/GitHubPoster) project.
 
 
 ## TODO
@@ -19,7 +26,7 @@
 - [x] 增加极客时间学习记录
 - [x] 用 cookie，避免每次重新登陆，增加登录失败重试
 - [x] 增加 Bilibili 每日看视频数量，生成 svg
-- [ ] 增加读书记录
+- [x] 增加读书记录
 - [ ] 增加 keep 跑步记录
 - [ ] 增加背单词记录
 - [ ] 增加 YouTube 记录

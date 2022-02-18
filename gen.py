@@ -3,6 +3,7 @@ import asyncio
 import json
 import os
 import shutil
+import typing
 
 import httpx
 import pendulum
@@ -85,17 +86,29 @@ class LoginFailed(Exception):
     super().__init__(f"{name} login failed: {msg}")
 
 
+T = typing.TypeVar("T", bound="DataGenerator")
+
+
 class DataGenerator:
   name: str
   image_service: ImageService
 
+  @classmethod
   @abc.abstractmethod
-  async def generate(self) -> dict[str: str]:
+  def from_env(cls: typing.Type[T], *args) -> T:
+    raise NotImplementedError
+
+  @abc.abstractmethod
+  async def generate(self: T) -> dict[str: str]:
     raise NotImplementedError
 
 
 class GithubCalendar(DataGenerator):
   name = "github_calendar"
+
+  @classmethod
+  def from_env(cls: typing.Type[T], page: Page) -> T:
+    return cls(os.environ["GH_USERNAME"], page)
 
   def __init__(self, username: str, page: Page):
     self.username = username
@@ -160,6 +173,17 @@ class LeetcodeSummary(LoginDataGenerator):
   base_url = "https://leetcode-cn.com"
   cookie_domain = ".leetcode-cn.com"
 
+  @classmethod
+  def from_env(cls: typing.Type[T], page: Page) -> T:
+    cookies = os.environ.get("LC_COOKIES") or {}
+    if cookies:
+      cookies = parse_cookies_string(cookies)
+    return cls(
+      (os.environ["LC_USERNAME"], os.environ["LC_PASSWORD"]),
+      cookies,
+      page,
+    )
+
   async def login_by_credential(self):
     page = self.page
     await page.goto(self.base_url)
@@ -201,6 +225,17 @@ class GeekTimeCalendar(LoginDataGenerator):
   base_url = "https://time.geekbang.org"
   cookie_domain = ".geekbang.org"
 
+  @classmethod
+  def from_env(cls: typing.Type[T], page: Page) -> T:
+    cookies = os.environ.get("GT_COOKIES") or {}
+    if cookies:
+      cookies = parse_cookies_string(cookies)
+    return cls(
+      (os.environ["GT_USERNAME"], os.environ["GT_PASSWORD"]),
+      cookies,
+      page,
+    )
+
   async def login_by_credential(self):
     page = self.page
     await page.goto("https://account.geekbang.org/login?country=86")
@@ -236,26 +271,32 @@ class GeekTimeCalendar(LoginDataGenerator):
     }
 
 
+client = httpx.AsyncClient(
+    headers={
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"
+    },
+    trust_env=False,
+)
+
+
 class BilibiliHistory(LoginDataGenerator):
   name = "bilibili_history"
 
-  def __init__(self, credentials: tuple, cookies: dict[str, str], page: Page | None):
-    super().__init__(credentials, cookies, page)
-    self.client = httpx.AsyncClient(
-      base_url="https://api.bilibili.com",
-      headers={
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"},
-      trust_env=False,
-    )
+  @classmethod
+  def from_env(cls: typing.Type[T], page: Page) -> T:
+    cookies = os.environ["BILI_COOKIES"]
+    cookies = parse_cookies_string(cookies)
+    return cls((), cookies, page)
+
 
   async def login_by_cookies(self) -> None:
-    self.client.cookies.update(self.cookies)
+    client.cookies.update(self.cookies)
 
   async def login_by_credential(self):
     return
 
   async def check_login(self) -> bool:
-    resp = await self.client.get("/x/web-interface/nav")
+    resp = await client.get("https://api.bilibili.com/x/web-interface/nav")
     data = resp.json()
     return data["data"]["isLogin"]
 
@@ -281,8 +322,8 @@ class BilibiliHistory(LoginDataGenerator):
     exhausted = False
     while not exhausted:
       log("Fetching bilibili history")
-      resp = await self.client.get(
-        "/x/web-interface/history/cursor",
+      resp = await client.get(
+        "https://api.bilibili.com/x/web-interface/history/cursor",
         params={
           "max": max,
           "view_at": view_at,
@@ -346,6 +387,77 @@ class BilibiliHistory(LoginDataGenerator):
     }
 
 
+class WeReadHistory(LoginDataGenerator):
+  name = "weread_history"
+  base_url = "https://weread.qq.com/"
+  read_detail_url = "https://i.weread.qq.com/readdetail?baseTimestamp=0&count=12&type=0"
+
+  @classmethod
+  def from_env(cls: typing.Type[T], page: Page) -> T:
+    cookies = os.environ["WEREAD_COOKIES"]
+    cookies = parse_cookies_string(cookies)
+    return cls((), cookies, page)
+
+  async def login_by_cookies(self) -> None:
+    client.cookies.update(self.cookies)
+
+  async def check_login(self) -> bool:
+    return True
+
+  async def get_history(self) -> list:
+    r = await client.get(self.read_detail_url)
+    if r.is_error:
+      if r.json()["errcode"] == -2012:
+        await client.get(self.base_url)
+        r = await client.get(self.read_detail_url)
+      else:
+        raise LoginFailed("get weread history failed")
+    return r.json()["monthTimeSummary"]
+
+  async def generate_svg(self, data: dict[str: str]) -> str:
+    p = Poster()
+    p.colors = {
+      "background": "#222222",
+      "track": "#abdcfc",
+      "special": "#6dc2f9",
+      "special2": "#2076ad",
+      "text": "#ffffff",
+    }
+    p.special_number = {
+      "special_number1": 30,
+      "special_number2": 15,
+    }
+    p.units = "mins"
+    p.title = "j178 WeRead"
+    p.height = 35 + 43
+    p.set_tracks(data, [pendulum.today().year], ["weread"])
+    d = Drawer(p)
+    save_to = os.path.join(OUTPUT_FOLDER, f"{self.name}.svg")
+    p.draw(d, save_to)
+
+    return save_to
+
+  async def generate(self) -> dict[str: str]:
+    await self.login()
+    history = await self.get_history()
+    data = {}
+    for month in history:
+      if month["monthTotalReadTime"] < 60:
+        continue
+      month_start = pendulum.from_timestamp(month["monthTimestamp"], tz="local")
+      month_end = month_start.end_of("month")
+      for date, seconds in zip(month_end - month_start, month["timeSample"]):
+        data[date.to_date_string()] = round(seconds / 60, 2)
+
+    svg_path = await self.generate_svg(data)
+    image_url = os.path.join(DATA_FOLDER, f"{self.name}.svg")
+    shutil.copy(svg_path, DATA_FOLDER)
+    return {
+      self.name: image_url,
+      f"{self.name}_update_date": get_today(),
+    }
+
+
 def update_readme(params: dict):
   with open("./README.md.in", "rt") as f:
     content = f.read()
@@ -375,38 +487,14 @@ def parse_cookies_string(cookies_string: str) -> dict[str, str]:
 
 
 async def run() -> bool:
-  log("Running")
-  sm_token = os.environ["SM_TOKEN"]
-  gh_username = os.environ["GH_USERNAME"]
-
-  lc_username = os.environ["LC_USERNAME"]
-  lc_password = os.environ["LC_PASSWORD"]
-  lc_cookies = os.environ.get("LC_COOKIES")
-  if lc_cookies:
-    lc_cookies = parse_cookies_string(lc_cookies)
-  else:
-    lc_cookies = {}
-
-  gt_username = os.environ["GT_USERNAME"]
-  gt_password = os.environ["GT_PASSWORD"]
-  gt_cookies = os.environ.get("GT_COOKIES")
-  if gt_cookies:
-    gt_cookies = parse_cookies_string(gt_cookies)
-  else:
-    gt_cookies = {}
-
-  bili_cookies = os.environ["BILI_COOKIES"]
-  bili_cookies = parse_cookies_string(bili_cookies)
-
   os.makedirs(OUTPUT_FOLDER, exist_ok=True)
   os.makedirs(DEBUG_FOLDER, exist_ok=True)
 
+  sm_token = os.environ["SM_TOKEN"]
   image_service = ImageService(sm_token)
   DataGenerator.image_service = image_service
 
-  log("Before launching")
   async with async_playwright() as playwright:
-    log("Launching firefox browser")
     if DEBUG:
       browser = await playwright.firefox.launch(headless=False, slow_mo=500)
     else:
@@ -420,10 +508,11 @@ async def run() -> bool:
     page = await context.new_page()
 
     sources = [
-      LeetcodeSummary((lc_username, lc_password), lc_cookies, page),
-      GithubCalendar(gh_username, page),
-      GeekTimeCalendar((gt_username, gt_password), gt_cookies, page),
-      BilibiliHistory((), bili_cookies, page),
+      LeetcodeSummary.from_env(page),
+      GithubCalendar.from_env(page),
+      GeekTimeCalendar.from_env(page),
+      WeReadHistory.from_env(page),
+      BilibiliHistory.from_env(page),
     ]
     full_data = {}
     for source in sources:
@@ -442,6 +531,7 @@ async def run() -> bool:
 
   update_readme(full_data)
   await image_service.cleanup()
+  await client.aclose()
 
   return True
 
