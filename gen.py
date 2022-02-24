@@ -3,6 +3,7 @@ import asyncio
 import json
 import os
 import shutil
+import time
 import traceback
 import typing
 
@@ -393,7 +394,7 @@ class BilibiliHistory(LoginDataGenerator):
         self.save_histories(history)
 
         svg_path = await self.generate_svg(history)
-        image_url = os.path.join(DATA_FOLDER, f"{self.name}.svg")
+        image_url = os.path.join(DATA_FOLDER, f"{self.name}.svg") + f"?_ts={int(time.time())}"
         shutil.copy(svg_path, DATA_FOLDER)
         return {
             self.name: image_url,
@@ -476,7 +477,7 @@ class WeReadHistory(LoginDataGenerator):
                 data[date.to_date_string()] = round(seconds / 60, 2)
 
         svg_path = await self.generate_svg(data)
-        image_url = os.path.join(DATA_FOLDER, f"{self.name}.svg")
+        image_url = os.path.join(DATA_FOLDER, f"{self.name}.svg") + f"?_ts={int(time.time())}"
         shutil.copy(svg_path, DATA_FOLDER)
         return {
             self.name: image_url,
