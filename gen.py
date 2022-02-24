@@ -432,7 +432,7 @@ class WeReadHistory(LoginDataGenerator):
     async def get_history(self, retries: int = 0) -> list:
         r = await self.client.get(self.read_detail_url)
         data = r.json()
-        if data["errcode"] == -2012:
+        if data.get("errcode", 0) == -2012:
             if retries < 2:
                 await self.client.get(self.base_url)
                 return await self.get_history(retries + 1)
