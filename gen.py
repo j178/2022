@@ -3,6 +3,7 @@ import asyncio
 import json
 import os
 import shutil
+import traceback
 import typing
 
 import httpx
@@ -428,15 +429,16 @@ class WeReadHistory(LoginDataGenerator):
     async def check_login(self) -> bool:
         return True
 
-    async def get_history(self) -> list:
+    async def get_history(self, retries: int = 0) -> list:
         r = await self.client.get(self.read_detail_url)
-        if r.is_error:
-            if r.json()["errcode"] == -2012:
+        data = r.json()
+        if data["errcode"] == -2012:
+            if retries < 2:
                 await self.client.get(self.base_url)
-                r = await self.client.get(self.read_detail_url)
+                return await self.get_history(retries + 1)
             else:
-                raise LoginFailed("get weread history failed")
-        return r.json()["monthTimeSummary"]
+                raise LoginFailed(f"get weread history failed: {data}")
+        return data["monthTimeSummary"]
 
     async def generate_svg(self, data: dict[str:str]) -> str:
         p = Poster()
@@ -552,6 +554,7 @@ async def run() -> bool:
                 full_data.update(data)
                 log(f"Generated {generator.name}")
             except Exception as e:
+                traceback.print_exc()
                 log(f"::error::Generate {generator.name} failed: {e!r}")
                 await page.screenshot(
                     path=os.path.join(DEBUG_FOLDER, f"{generator.name}.png")
@@ -563,6 +566,7 @@ async def run() -> bool:
 
     update_readme(full_data)
     await image_service.cleanup()
+    await image_service.client.aclose()
     await client.aclose()
 
     return True
