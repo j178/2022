@@ -1,10 +1,10 @@
 # Daily track
 
 ## [GitHub contribution calendar](https://github.com/j178) (Updated at 2022-03-22)
-![github_calendar](https://s2.loli.net/2022/03/22/faADlri9XHuOvx5.png)
+![github_calendar](https://s2.loli.net/2022/03/22/nkBD3ORh9MF1Cfy.png)
 
 ## [Leetcode summary](https://leetcode-cn.com/u/j178) (Updated at 2022-03-22)
-![leetcode_summary](https://s2.loli.net/2022/03/22/uqQrIdmSLP58oAK.png)
+![leetcode_summary](https://s2.loli.net/2022/03/22/GKpgSPEyetflxU5.png)
 
 ## [Geek time calendar](https://time.geekbang.org/) (Updated at 2022-03-21)
 ![geek_time_calendar](https://s2.loli.net/2022/03/21/1LFJ4Rjusqzxv7g.png)
