@@ -4,10 +4,10 @@
 ![github_calendar](https://s2.loli.net/2022/03/22/nkBD3ORh9MF1Cfy.png)
 
 ## [Leetcode summary](https://leetcode-cn.com/u/j178) (Updated at 2022-03-22)
-![leetcode_summary](https://s2.loli.net/2022/03/22/GKpgSPEyetflxU5.png)
+![leetcode_summary](https://s2.loli.net/2022/03/22/Doy35spuSvRlHr9.png)
 
-## [Geek time calendar](https://time.geekbang.org/) (Updated at 2022-03-21)
-![geek_time_calendar](https://s2.loli.net/2022/03/21/1LFJ4Rjusqzxv7g.png)
+## [Geek time calendar](https://time.geekbang.org/) (Updated at 2022-03-22)
+![geek_time_calendar](https://s2.loli.net/2022/03/22/w6GlgT9CPhd2A8o.png)
 
 ## [WeRead history](https://weread.qq.com) (Updated at 2022-03-22)
 ![weread_history](./data/weread_history.svg)
