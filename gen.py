@@ -206,6 +206,7 @@ class LeetcodeSummary(LoginDataGenerator):
     async def check_login(self) -> bool:
         page = self.page
         await page.goto(self.base_url)
+        await page.reload()
         cnt = await page.locator("div[data-cypress=AuthLinks]").count()
         return cnt == 0
 
@@ -217,6 +218,9 @@ class LeetcodeSummary(LoginDataGenerator):
         btn = self.page.locator("span:has-text('知道了')")
         if await btn.count() > 0:
             await btn.click()
+            log("dismiss '知道了' button")
+        else:
+            log("'知道了' button not found")
 
         save_to = os.path.join(OUTPUT_FOLDER, f"{self.name}.png")
         await self.page.screenshot(
@@ -272,6 +276,7 @@ class GeekTimeCalendar(LoginDataGenerator):
 
     async def check_login(self) -> bool:
         await self.page.goto(self.base_url)
+        await self.page.reload()
         cnt = await self.page.locator("div.profile-dropdown").count()
         return cnt == 1
 
