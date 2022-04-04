@@ -541,10 +541,12 @@ async def run() -> bool:
             browser = await playwright.firefox.launch()
 
         context = await browser.new_context(
+            user_agent=USER_AGENT,
             viewport={"width": 1920, "height": 1080},
             screen={"width": 1920, "height": 1080},
             device_scale_factor=2,
         )
+        await context.add_init_script(path="stealth.min.js")
         page = await context.new_page()
 
         generators = [
