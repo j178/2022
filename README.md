@@ -1,10 +1,10 @@
 # Daily track
 
-## [GitHub contribution calendar](https://github.com/j178) (Updated at 2022-04-17)
-![github_calendar](https://s2.loli.net/2022/04/17/1X4Pw6B5YIFrgVp.png)
+## [GitHub contribution calendar](https://github.com/j178) (Updated at 2022-04-18)
+![github_calendar](https://s2.loli.net/2022/04/18/WnqYzwfpivLDJ3l.png)
 
-## [Leetcode summary](https://leetcode-cn.com/u/j178) (Updated at 2022-04-17)
-![leetcode_summary](https://s2.loli.net/2022/04/17/hSGBcQRIKkLYUvP.png)
+## [Leetcode summary](https://leetcode-cn.com/u/j178) (Updated at 2022-04-18)
+![leetcode_summary](https://s2.loli.net/2022/04/18/EQxkiDbRL1I39uJ.png)
 
 ## [Geek time calendar](https://time.geekbang.org/) (Updated at 2022-04-14)
 ![geek_time_calendar](https://s2.loli.net/2022/04/14/7WE8cv5FDrQRk1t.png)
@@ -12,7 +12,7 @@
 ## [WeRead history](https://weread.qq.com) (Updated at 2022-04-11)
 ![weread_history](./data/weread_history.svg)
 
-## [BiliBili watch history](https://bilibili.com) (Updated at 2022-04-17)
+## [BiliBili watch history](https://bilibili.com) (Updated at 2022-04-18)
 ![bilibili_history](./data/bilibili_history.svg)
 
 
