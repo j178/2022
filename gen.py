@@ -222,12 +222,13 @@ class LeetcodeSummary(LoginDataGenerator):
         else:
             log("'知道了' button not found")
 
-        # await self.page.screenshot(
-        #     path=os.path.join(DEBUG_FOLDER, f"leetcode-full-screen.png")
-        # )
+        if DEBUG:
+            await self.page.screenshot(
+                path=os.path.join(DEBUG_FOLDER, f"leetcode-full-screen.png")
+            )
         save_to = os.path.join(OUTPUT_FOLDER, f"{self.name}.png")
         await self.page.screenshot(
-            path=save_to, clip=dict(x=1380, y=393, width=1674, height=1207)
+            path=save_to, clip=dict(x=693, y=197, width=836, height=600)
         )
 
         image_url = await self.image_service.upload(save_to)
