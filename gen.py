@@ -228,7 +228,7 @@ class LeetcodeSummary(LoginDataGenerator):
             )
         save_to = os.path.join(OUTPUT_FOLDER, f"{self.name}.png")
         await self.page.screenshot(
-            path=save_to, clip=dict(x=693, y=197, width=836, height=600)
+            path=save_to, clip=dict(x=695, y=196, width=836, height=601)
         )
 
         image_url = await self.image_service.upload(save_to)
