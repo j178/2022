@@ -165,8 +165,8 @@ class LoginDataGenerator(DataGenerator):
 
 class LeetcodeSummary(LoginDataGenerator):
     name = "leetcode_summary"
-    base_url = "https://leetcode-cn.com"
-    cookie_domain = ".leetcode-cn.com"
+    base_url = "https://leetcode.cn"
+    cookie_domain = ".leetcode.cn"
 
     def __init__(self, credentials: tuple, cookies: dict, page: Page):
         super().__init__(credentials, cookies)
