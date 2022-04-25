@@ -222,12 +222,12 @@ class LeetcodeSummary(LoginDataGenerator):
         else:
             log("'知道了' button not found")
 
-        await self.page.screenshot(
-            path=os.path.join(DEBUG_FOLDER, f"leetcode-full-screen.png")
-        )
+        # await self.page.screenshot(
+        #     path=os.path.join(DEBUG_FOLDER, f"leetcode-full-screen.png")
+        # )
         save_to = os.path.join(OUTPUT_FOLDER, f"{self.name}.png")
         await self.page.screenshot(
-            path=save_to, clip=dict(x=700, y=160, width=772, height=365)
+            path=save_to, clip=dict(x=1380, y=393, width=1674, height=1207)
         )
 
         image_url = await self.image_service.upload(save_to)
@@ -262,12 +262,13 @@ class GeekTimeCalendar(LoginDataGenerator):
         await page.goto("https://account.geekbang.org/login?country=86")
         await page.wait_for_timeout(500)
 
+        # TODO: 模拟密码登录会有问题：操作过于频繁，请稍后再试
         await page.wait_for_selector('[placeholder="密码"]')
-        await page.fill('[placeholder="手机号"]', self.credentials[0])
-        await page.fill('[placeholder="密码"]', self.credentials[1])
+        await page.type('[placeholder="手机号"]', self.credentials[0], delay=10)
+        await page.type('[placeholder="密码"]', self.credentials[1], delay=10)
         await page.check('input[type="checkbox"]')
         await page.click(':nth-match(:text("登录"), 3)')
-        await page.wait_for_url("https://time.geekbang.org/")
+        await page.wait_for_url("https://time.geekbang.org/", timeout=3000)
 
     async def login_by_cookies(self) -> None:
         if self.cookies:
