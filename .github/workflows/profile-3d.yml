@@ -1,0 +1,24 @@
+name: GitHub-Profile-3D-Contrib
+
+on:
+  schedule: # 00:00 CST == 16:00 UTC
+    - cron: "0 16 * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: generate-github-profile-3d-contrib
+    steps:
+      - uses: actions/checkout@v2
+      - uses: yoshi389111/github-profile-3d-contrib@0.6.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+      - name: Add & Commit
+        uses: EndBug/add-and-commit@v7.5.0
+        with:
+          add: '["profile-3d-contrib"]'
+          default_author: github_actions
+          message: 'Update profile 3D contribution'
+ 
