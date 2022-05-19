@@ -45,6 +45,16 @@ jobs:
           mkdir -p ~/.local/share/fonts && cp -r fonts/* ~/.local/share/fonts/
           fc-cache -rv
 
+      - name: Generate 3D contribution profile
+        uses: yoshi389111/github-profile-3d-contrib@0.6.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+          SETTING_JSON: ./data/3d_profile_settings.json
+
+      - name: Move 3D profile
+        run: mv ./profile-3d-contrib/* ./data
+
       - name: Generate readme
         env:
           LC_USERNAME: j178
