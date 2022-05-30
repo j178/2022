@@ -3,7 +3,6 @@ import asyncio
 import json
 import os
 import shutil
-import time
 import traceback
 import typing
 
@@ -67,7 +66,7 @@ class ImageService:
         history = resp.json()["data"]
         now = pendulum.now("local")
         for item in history:
-            created_at = pendulum.from_timestamp(item["created_at"], "local")
+            created_at = pendulum.from_format(item["created_at"], "YYYY-MM-DD HH:mm:ss", "local")
             filename = item["filename"]
             if (now - created_at).days >= 7:
                 try:
