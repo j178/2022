@@ -553,7 +553,7 @@ async def run() -> bool:
         generators = [
             LeetcodeSummary.from_env(page),
             GithubCalendar.from_env(page),
-            GeekTimeCalendar.from_env(page),
+            # GeekTimeCalendar.from_env(page),
             WeReadHistory.from_env(client),
             BilibiliHistory.from_env(client),
         ]
