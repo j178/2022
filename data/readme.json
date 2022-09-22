@@ -1,10 +1,10 @@
 {
   "bilibili_history": "./data/bilibili_history.svg",
-  "bilibili_history_update_date": "2022-09-22",
+  "bilibili_history_update_date": "2022-09-23",
   "geek_time_calendar": "https://s2.loli.net/2022/04/14/7WE8cv5FDrQRk1t.png",
   "geek_time_calendar_update_date": "2022-04-14",
-  "github_calendar": "https://s2.loli.net/2022/09/22/q8unYdf2TBHMowz.png",
-  "github_calendar_update_date": "2022-09-22",
+  "github_calendar": "https://s2.loli.net/2022/09/23/l3IX6GEBeWQkacY.png",
+  "github_calendar_update_date": "2022-09-23",
   "leetcode_summary": "https://s2.loli.net/2022/09/22/VUKg8SQYIDlLZ1m.png",
   "leetcode_summary_update_date": "2022-09-22",
   "weread_history": "./data/weread_history.svg",
