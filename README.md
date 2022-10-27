@@ -1,11 +1,11 @@
 # Daily track
 
-## [GitHub contribution calendar](https://github.com/j178) (Updated at 2022-10-27)
-![github_calendar](https://s2.loli.net/2022/10/27/9SWcsERKfQ2PGwj.png)
+## [GitHub contribution calendar](https://github.com/j178) (Updated at 2022-10-28)
+![github_calendar](https://s2.loli.net/2022/10/28/jnP6kRbv8KFXxzm.png)
 ![github_profile_3D](./data/profile-customize.svg)
 
-## [Leetcode summary](https://leetcode-cn.com/u/j178) (Updated at 2022-10-27)
-![leetcode_summary](https://s2.loli.net/2022/10/27/UhczbgZ3fBSpJKj.png)
+## [Leetcode summary](https://leetcode-cn.com/u/j178) (Updated at 2022-10-28)
+![leetcode_summary](https://s2.loli.net/2022/10/28/jmQOhqW8lrDEcCt.png)
 
 ## [WeRead history](https://weread.qq.com) (Updated at 2022-04-11)
 ![weread_history](./data/weread_history.svg)
