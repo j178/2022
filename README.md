@@ -1,7 +1,7 @@
 # Daily track
 
-## [GitHub contribution calendar](https://github.com/j178) (Updated at 2022-11-28)
-![github_calendar](https://s2.loli.net/2022/11/28/fjF9GUQoWK4uxvr.png)
+## [GitHub contribution calendar](https://github.com/j178) (Updated at 2022-11-29)
+![github_calendar](https://s2.loli.net/2022/11/29/uo6BmdvfHiA3lFN.png)
 ![github_profile_3D](./data/profile-customize.svg)
 
 ## [Leetcode summary](https://leetcode-cn.com/u/j178) (Updated at 2022-11-28)
